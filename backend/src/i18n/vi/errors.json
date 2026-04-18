@@ -1,0 +1,10 @@
+{
+  "BAD_REQUEST": "Yeu cau khong hop le",
+  "UNAUTHORIZED": "Khong duoc xac thuc",
+  "FORBIDDEN": "Khong duoc phep truy cap",
+  "NOT_FOUND": "Khong tim thay tai nguyen",
+  "CONFLICT": "Xung dot du lieu",
+  "UNPROCESSABLE_ENTITY": "Du lieu xac thuc khong hop le",
+  "TOO_MANY_REQUESTS": "Qua nhieu yeu cau",
+  "INTERNAL_SERVER_ERROR": "Loi he thong noi bo"
+}
