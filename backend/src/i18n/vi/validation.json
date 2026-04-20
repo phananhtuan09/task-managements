@@ -1,11 +1,11 @@
 {
-  "isEmail": "$property phai la dia chi email hop le",
-  "isString": "$property phai la chuoi",
-  "isUUID": "$property phai la UUID hop le",
-  "isEnum": "$property phai nam trong cac gia tri duoc phep",
-  "isDateString": "$property phai la chuoi ngay ISO 8601 hop le",
-  "minLength": "$property phai co it nhat $constraint1 ky tu",
-  "isInt": "$property phai la so nguyen",
-  "min": "$property khong duoc nho hon $constraint1",
-  "max": "$property khong duoc lon hon $constraint1"
+  "isEmail": "{property} phai la dia chi email hop le",
+  "isString": "{property} phai la chuoi",
+  "isUUID": "{property} phai la UUID hop le",
+  "isEnum": "{property} phai nam trong cac gia tri duoc phep",
+  "isDateString": "{property} phai la chuoi ngay ISO 8601 hop le",
+  "minLength": "{property} phai co it nhat {constraints.0} ky tu",
+  "isInt": "{property} phai la so nguyen",
+  "min": "{property} khong duoc nho hon {constraints.0}",
+  "max": "{property} khong duoc lon hon {constraints.0}"
 }

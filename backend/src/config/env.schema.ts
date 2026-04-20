@@ -14,7 +14,6 @@ export function validateEnv(env: EnvRecord): EnvRecord {
   requireString(env, 'NODE_ENV');
   requireString(env, 'DATABASE_URL');
   requireString(env, 'JWT_ACCESS_SECRET');
-  requireString(env, 'JWT_REFRESH_SECRET');
 
   return env;
 }

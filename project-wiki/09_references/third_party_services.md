@@ -1,14 +1,14 @@
 ---
 id: REF-CORE-THIRD-PARTY-SERVICES
-title: Third-Party Services
+title: TaskFlow SaaS Third-Party Services
 doc_type: reference
 domain: references
-status: proposed
+status: confirmed
 version: 0.1
 owner: ai-primary
 reviewers:
   - project-maintainer
-last_updated: 2026-04-08
+last_updated: 2026-04-19
 source_of_truth: true
 canonical: true
 related_docs:
@@ -18,24 +18,11 @@ tags:
   - project-wiki
   - references
   - services
-summary: Starter reference surface for tracking third-party services if the wiki later depends on them.
+summary: Starter third-party service inventory for TaskFlow SaaS.
 ---
 
-# Third-Party Services
+# TaskFlow SaaS Third-Party Services
 
-## Current Usage Status
+## Services
 
-No third-party service is currently required to define the wiki model itself.
-
-## If Services Are Added Later
-
-Document each service with:
-
-- service name and purpose
-- why the service is needed
-- which wiki workflows depend on it
-- key ownership or access notes
-
-## Boundary Note
-
-Keep this file minimal until a real third-party dependency exists. Do not pad it with speculative integrations.
+_To be filled in._

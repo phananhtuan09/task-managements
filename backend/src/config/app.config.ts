@@ -1,5 +1,9 @@
 import { registerAs } from '@nestjs/config';
 
+import {
+  THROTTLE_MAX_REQUESTS,
+  THROTTLE_WINDOW_SECONDS,
+} from '../common/constants/request.constants';
 import { getEnvValue } from '../common/utils';
 
 export default registerAs('app', () => ({
@@ -14,7 +18,7 @@ export default registerAs('app', () => ({
     debugHeader: getEnvValue('APP_ERROR_DEBUG_HEADER', 'string', 'x-error-debug-key'),
   },
   throttle: {
-    ttl: getEnvValue('THROTTLE_TTL', 'number', 60),
-    limit: getEnvValue('THROTTLE_LIMIT', 'number', 120),
+    ttlSeconds: THROTTLE_WINDOW_SECONDS,
+    limit: THROTTLE_MAX_REQUESTS,
   },
 }));

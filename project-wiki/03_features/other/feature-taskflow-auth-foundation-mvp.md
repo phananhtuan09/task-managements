@@ -3,108 +3,174 @@ id: FEAT-OTHER-TASKFLOW-AUTH-FOUNDATION
 title: TaskFlow SaaS Auth Foundation MVP
 doc_type: feature_spec
 domain: other
-status: proposed
+status: confirmed
 version: 1.0
 owner: ai-primary
 reviewers:
   - project-maintainer
-last_updated: 2026-04-18
+last_updated: 2026-04-19
 source_of_truth: true
 canonical: true
 related_docs:
   - INDEX-FEATURES-ROOT
   - WIKI-CORE-GOVERNANCE
+  - REQ-CORE-BUSINESS-RULES
+  - REQ-CORE-PRODUCT-SCOPE
+  - REQ-CORE-NON-FUNCTIONAL
+  - VERIFY-CORE-TEST-STRATEGY
 tags:
   - taskflow
   - auth
   - mvp
   - saas
-summary: Proposed canonical feature spec for the Week 1 TaskFlow SaaS MVP focused on account registration, sign-in, profile access, validation, and business-level response behavior.
+summary: Canonical feature spec for TaskFlow SaaS authentication covering registration, login, protected profile access, validation, error handling, logging, and basic unit-test expectations.
 ---
 
 # TaskFlow SaaS Auth Foundation MVP
 
 ## Purpose
 
-Define the Week 1 MVP slice for TaskFlow SaaS at the business-logic level so implementation starts from a narrow authentication and user-management foundation.
+Define the authentication foundation for the TaskFlow SaaS MVP so implementation can start from a narrow, secure, and testable user-access slice.
 
 ## Scope
 
-- user registration with email and password
-- user login with credential verification
-- authenticated profile retrieval for signed-in users
-- user records containing `id`, `email`, protected password data, and `createdAt`
+- user registration with `email` and `password`
+- password hashing before persistence
+- user login with email and password verification
+- JWT access token generation on successful login
+- protected profile retrieval using access token authentication
+- persistence of core user fields: `id`, `email`, hashed `password`, `createdAt`
 - input validation for email format and minimum password length
-- standardized business-level error responses for invalid input, authentication failure, and internal errors
-- secure handling of password data so raw passwords are never exposed after submission
+- standardized error handling for invalid input, unauthorized access, and internal failures
+- request and error logging for auth endpoints
+- basic unit coverage for password hashing, password verification, and token generation
 
 ## Out of Scope
 
-- refresh tokens
+- refresh token support
 - logout
-- workspace management
-- task management
-- role and permission systems
+- workspace features
+- task features
+- role and permission management
 - frontend UI
-- deployment and infrastructure rollout
-- implementation-specific technical design, libraries, frameworks, and test strategy
+- Docker and deployment setup
 
 ## Acceptance Criteria
 
-- Given a visitor submits valid registration input, when account creation succeeds, then a new user account is stored and the response returns user-safe information without password data.
-- Given a visitor submits valid login credentials, when authentication succeeds, then the system returns an access credential that can be used for authenticated requests.
-- Given a signed-in user requests profile information with valid authentication, when access is verified, then the system returns that user's profile information.
-- Given a visitor submits malformed email or too-short password input, when validation runs, then the system rejects the request with an invalid-input response.
-- Given credentials are wrong or authentication is invalid, when access checks fail, then the system rejects the request with an unauthorized response.
-- Given an unexpected failure occurs, when the request cannot be completed, then the system returns an internal-error response without exposing sensitive internal details.
+- Given a user submits valid `email` and `password` to registration, when validation passes, then the system hashes the password, stores the user, and returns user-safe information without the password field.
+- Given a user submits valid login credentials, when the email and password are verified, then the system returns a valid JWT access token.
+- Given a user calls the profile endpoint with a valid token, when authentication middleware verifies the token, then the system attaches the authenticated user to the request and returns the user's profile information.
+- Given a request contains an invalid email format or a password shorter than the minimum length, when validation runs, then the system returns a `400` response.
+- Given login credentials are wrong or a token is invalid, when authentication fails, then the system returns a `401` response.
+- Given an unexpected server-side failure occurs, when the request cannot be completed, then the system returns a `500` response without exposing stack traces to the client.
+- Given any auth endpoint is called, when the request completes, then the system logs `method`, `path`, `status`, and `duration`.
+- Given an auth-related failure occurs, when the error is handled, then the system writes a dedicated error log entry.
+- Given auth utility behavior is implemented, when unit tests run, then hashing, password verification, and token generation each have basic test coverage.
 
 ## Related Docs
 
 - [Feature Specs Entry Point](../README.md)
+- [Project Wiki Index](../../INDEX.md)
 - [Governance](../../GOVERNANCE.md)
+- [Business Rules](../../02_requirements/confirmed/business_rules.md)
+- [Product Scope](../../02_requirements/confirmed/product_scope.md)
+- [Non-Functional Requirements](../../02_requirements/confirmed/non_functional_requirements.md)
+- [Test Strategy](../../08_verification/test_strategy.md)
 
 ## Confirmed
 
-### Product Slice
+### Functional Requirements
 
-The initial flagship project is **TaskFlow SaaS (Mini Task Management System)** for team-oriented work management, and the Week 1 MVP scope is limited to the authentication and user foundation.
+- Users can register an account with `email` and `password`.
+- Passwords must be hashed before storage.
+- Users can log in with `email` and `password`.
+- Successful login returns a JWT access token with claims `sub` (user id) and `email`, signed with `HS256`, and expiring in `15 minutes`.
+- Users can retrieve profile information through a protected endpoint that requires a token.
 
-### Core Functional Requirements
+### User Data
 
-- Users can register with `email` and `password`.
-- Password data must be protected before storage.
-- Users can log in with email and password.
-- Successful login returns an access credential.
-- Users can fetch profile information only when authenticated.
-- User records must include `id`, `email`, protected password data, and `createdAt`.
+- User records must store:
+  - `id`
+  - `email`
+  - `password` as a hashed value
+  - `createdAt`
 
-### Validation and Error Handling
+### Validation
 
-- Email must use a valid format.
-- Password must meet a minimum-length rule.
-- The system should return `400` for invalid input, `401` for bad credentials or invalid authentication, and `500` for internal errors.
+- Email input must match a valid email format.
+- Password input must enforce a minimum length of `8`.
 
-### Non-Functional Requirements
+### Error Handling
 
+- Return `400` for invalid input.
+- Return `401` for invalid credentials or invalid token.
+- Return `500` for internal server errors.
+- Return `409` for duplicate-email registration attempts.
+
+### Security
+
+- Password hashing uses `bcrypt`.
 - Password values are never returned in responses.
 - Stack traces are not exposed to clients.
-- Authentication-related operations should be observable through operational logging.
+
+### Logging
+
+- Each request logs `method`, `path`, `status`, and `duration`.
+- Errors are logged separately.
+
+### Code Quality
+
+- The implementation should keep a clear structure such as controller, service, and middleware layers.
+- Logging should use a logger instead of `console.log`.
+
+### Testing
+
+- Unit tests are required for password hashing.
+- Unit tests are required for password verification.
+- Unit tests are required for token generation.
+
+### High-Level Flows
+
+#### Register Flow
+
+1. User sends `POST /register`.
+2. The system validates input.
+3. The system hashes the password.
+4. The system saves the user to the database.
+5. The system returns user information without the password.
+
+#### Login Flow
+
+1. User sends `POST /login`.
+2. The system validates input.
+3. The system compares the password.
+4. The system generates a JWT.
+5. The system returns the token.
+
+#### Protected Route Flow
+
+1. User sends `GET /profile`.
+2. Middleware verifies the token.
+3. The authenticated user is attached to the request.
+4. The system returns `id`, `email`, and `createdAt`.
+
+### Definition of Done
+
+- Register API works correctly.
+- Login returns a valid JWT.
+- Protected route behavior works correctly.
+- Passwords are hashed.
+- Request logging and error logging are present.
+- Basic unit tests are present.
 
 ## Inferred
 
-### Architectural Boundary
-
-This document defines only the feature-level behavior for the Week 1 MVP. API contracts, technical architecture, storage strategy, observability design, and later workspace or task capabilities should live in separate docs once they become durable topics of their own.
+- Response body schemas for success and error payloads should be defined in API-level docs or implementation notes if they become durable project knowledge.
 
 ## Unknown
 
-- The minimum password length has not been fixed to a specific number yet.
-- The exact shape of the access credential is not specified yet.
-- The exact response schema for success and error payloads is not specified yet.
-- It is not yet specified whether duplicate-email registration returns a validation-style `400` or a conflict-style error.
+_None currently._
 
 ## Open Questions
 
-- What minimum password length should this MVP enforce?
-- Should duplicate-email registration return `400`, `409`, or another standardized error shape?
-- Should the profile response include only `id` and `email`, or additional metadata such as `createdAt`?
+_None currently._

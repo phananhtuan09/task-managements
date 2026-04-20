@@ -3,7 +3,7 @@ id: INDEX-FLOWS-ROOT
 title: Flow Specs Index
 doc_type: folder_index
 domain: flows
-status: proposed
+status: confirmed
 version: 0.1
 owner: ai-primary
 reviewers:
@@ -40,5 +40,5 @@ Use this area for sequence logic that spans steps, branches, and failure paths.
 
 ## Current State
 
-- Canonical flow specs now exist for authoring, impact analysis, and discrepancy reconciliation.
-- Use this README as the folder entry point, then read the flow doc that matches the target activity.
+- No canonical flow specs are seeded yet for TaskFlow SaaS.
+- Use this README as the folder entry point until the first flow spec is added.

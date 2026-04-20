@@ -6,7 +6,6 @@ import {
   ApiSuccessResponse,
   ApiValidationErrorResponse,
 } from '../../common/decorators/api-response.decorator';
-import { OperationResultDto } from '../../common/dto/operation-result.dto';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Public } from '../../common/decorators/public.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
@@ -16,7 +15,6 @@ import {
   AuthTokenResponseDto,
   AuthUserResponseDto,
   LoginRequestDto,
-  RefreshTokenRequestDto,
   RegisterRequestDto,
 } from './dto/auth.dto';
 
@@ -47,29 +45,13 @@ export class AuthController {
     return this.authService.login(payload);
   }
 
-  @Public()
-  @Post('refresh')
-  @ApiSuccessResponse(AuthTokenResponseDto, { status: 201, description: 'Refresh token' })
-  @ApiValidationErrorResponse()
-  @ApiCommonErrorResponses()
-  public refresh(@Body() payload: RefreshTokenRequestDto): Promise<AuthTokenResponseDto> {
-    return this.authService.refresh(payload);
-  }
-
-  @Post('logout')
-  @UseGuards(JwtAuthGuard)
-  @ApiSuccessResponse(OperationResultDto, { description: 'Logout current user session' })
-  @ApiCommonErrorResponses()
-  public logout(): Promise<{ success: boolean }> {
-    return this.authService.logout();
-  }
-
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @Get('me')
+  @Get('profile')
+  @ApiOperation({ summary: 'Get authenticated user profile' })
   @ApiSuccessResponse(AuthUserResponseDto, { description: 'Current user profile' })
   @ApiCommonErrorResponses()
-  public me(@CurrentUser() _user?: { sub: string }): Promise<AuthUserResponseDto> {
-    return this.authService.me();
+  public profile(@CurrentUser() user: { sub: string }): Promise<AuthUserResponseDto> {
+    return this.authService.getProfile(user.sub);
   }
 }

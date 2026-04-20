@@ -8,9 +8,6 @@ export class UserResponseDto {
   public readonly email!: string;
 
   @ApiProperty()
-  public readonly fullName!: string;
-
-  @ApiProperty()
   public readonly createdAt!: Date;
 
   @ApiProperty()

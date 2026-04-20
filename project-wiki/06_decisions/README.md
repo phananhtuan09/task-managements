@@ -3,7 +3,7 @@ id: INDEX-DECISIONS-ROOT
 title: Architecture Decisions Index
 doc_type: folder_index
 domain: decisions
-status: proposed
+status: confirmed
 version: 0.1
 owner: ai-primary
 reviewers:
@@ -39,5 +39,5 @@ Use this area for technical or structural decisions that need durable rationale.
 
 ## Current State
 
-- ADRs now exist for the source-of-truth boundary, one-canonical-doc ownership, and visible uncertainty.
-- Use this README as the folder entry point, then read the specific ADR that explains the rationale for the target rule or trade-off.
+- No ADRs are seeded yet for TaskFlow SaaS.
+- Use this README as the folder entry point until the first ADR is added.

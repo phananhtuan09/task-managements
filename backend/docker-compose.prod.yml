@@ -3,12 +3,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      target: deps
+      target: production
     env_file:
       - .env
-    volumes:
-      - .:/app
-      - /app/node_modules
     ports:
       - "${PORT:-3000}:3000"
     depends_on:
@@ -16,7 +13,6 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    command: sh -lc "CI=1 pnpm install --force --frozen-lockfile=false && pnpm prisma generate && pnpm start:dev"
 
   postgres:
     image: postgres:17-alpine

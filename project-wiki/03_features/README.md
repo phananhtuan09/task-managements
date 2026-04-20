@@ -3,12 +3,12 @@ id: INDEX-FEATURES-ROOT
 title: Feature Specs Index
 doc_type: folder_index
 domain: features
-status: proposed
+status: confirmed
 version: 0.1
 owner: ai-primary
 reviewers:
   - project-maintainer
-last_updated: 2026-04-18
+last_updated: 2026-04-08
 source_of_truth: false
 canonical: false
 related_docs:
@@ -41,15 +41,6 @@ Use this area for one feature per document.
 
 ## Current State
 
-- Canonical feature specs now exist for the core, authoring, retrieval, and verification areas of the wiki system.
-- Domain folders currently in use:
-  - `core/`
-  - `authoring/`
-  - `retrieval/`
-  - `verification/`
-  - `other/`
-- Use this README as the folder entry point, then follow the real feature docs for topic-specific behavior.
-
-## Additional Canonical Docs
-
-- [TaskFlow SaaS Auth Foundation MVP](other/feature-taskflow-auth-foundation-mvp.md) - proposed canonical feature doc for the Week 1 flagship-product auth foundation slice
+- Canonical feature specs currently exist for:
+  - `other/feature-taskflow-auth-foundation-mvp.md`
+- Use this README as the folder entry point, then follow the relevant feature doc for topic-specific behavior.

@@ -32,6 +32,10 @@ function getI18nTypesOutputPath(): string {
   return join(process.cwd(), 'src', 'generated', 'i18n.generated.ts');
 }
 
+function secondsToMilliseconds(seconds: number): number {
+  return seconds * 1000;
+}
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -45,7 +49,9 @@ function getI18nTypesOutputPath(): string {
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => [
         {
-          ttl: configService.getOrThrow<number>('app.throttle.ttl'),
+          ttl: secondsToMilliseconds(
+            configService.getOrThrow<number>('app.throttle.ttlSeconds'),
+          ),
           limit: configService.getOrThrow<number>('app.throttle.limit'),
         },
       ],

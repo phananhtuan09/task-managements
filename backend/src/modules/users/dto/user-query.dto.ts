@@ -8,7 +8,6 @@ import { i18nMessage } from '../../../i18n/i18n-validation';
 enum UserSortField {
   CREATED_AT = 'createdAt',
   EMAIL = 'email',
-  FULL_NAME = 'fullName',
 }
 
 export class UserQueryDto extends PaginationQueryDto {

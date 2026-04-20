@@ -12,9 +12,12 @@ RUN pnpm prisma generate
 RUN rm -rf dist tsconfig.build.tsbuildinfo
 RUN pnpm build
 
+FROM build AS prod-deps
+RUN pnpm prune --prod
+
 FROM base AS production
 ENV NODE_ENV=production
-COPY --from=deps /app/node_modules ./node_modules
+COPY --from=prod-deps /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/prisma ./prisma
 COPY package.json ./

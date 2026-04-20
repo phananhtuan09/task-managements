@@ -14,12 +14,6 @@ export class RegisterRequestDto {
   @IsString({ message: i18nMessage('validation.isString') })
   @MinLength(8, { message: i18nMessage('validation.minLength') })
   public readonly password!: string;
-
-  @ApiProperty()
-  @TrimmedString()
-  @IsString({ message: i18nMessage('validation.isString') })
-  @MinLength(2, { message: i18nMessage('validation.minLength') })
-  public readonly fullName!: string;
 }
 
 export class LoginRequestDto {
@@ -35,19 +29,9 @@ export class LoginRequestDto {
   public readonly password!: string;
 }
 
-export class RefreshTokenRequestDto {
-  @ApiProperty()
-  @TrimmedString()
-  @IsString({ message: i18nMessage('validation.isString') })
-  public readonly refreshToken!: string;
-}
-
 export class AuthTokenResponseDto {
   @ApiProperty()
   public readonly accessToken!: string;
-
-  @ApiProperty()
-  public readonly refreshToken!: string;
 
   @ApiProperty()
   public readonly tokenType!: string;
@@ -61,5 +45,5 @@ export class AuthUserResponseDto {
   public readonly email!: string;
 
   @ApiProperty()
-  public readonly fullName!: string;
+  public readonly createdAt!: Date;
 }

@@ -49,6 +49,30 @@ pnpm prisma:migrate:dev
 pnpm start:dev
 ```
 
+Or run the full local dev stack in Docker with hot reload:
+
+```bash
+docker compose up
+```
+
+The `api` service runs `pnpm start:dev`, backed by Node watch mode with `ts-node/register`, so source changes under `src/` reload automatically without depending on `dist`. Use `docker compose restart api` only when you change environment variables or need to restart the process manually.
+
+## Docker modes
+
+Development mode with hot reload:
+
+```bash
+docker compose up
+```
+
+Production-like mode using the built `dist` output:
+
+```bash
+docker compose -f docker-compose.prod.yml up --build
+```
+
+Use the production-like mode when you want to verify the containerized build path or behavior closer to deployment. Normal local feature work should stay on the default `docker-compose.yml`.
+
 ## Database commands
 
 ```bash
@@ -68,19 +92,19 @@ pnpm prisma:studio
 
 These Prisma commands run inside the Docker `api` service, so `.env` can keep Docker hostnames like `postgres` and `redis`.
 
-## Docker full run
+## Docker rebuild
 
 ```bash
 docker compose up --build
 ```
 
+This command is for rebuilding the local dev container image when dependencies or the Docker setup change. For normal backend code changes, `docker compose up` is enough and hot reload handles the rest.
+
 ## Initial routes
 
 - `POST /api/v1/auth/register`
 - `POST /api/v1/auth/login`
-- `POST /api/v1/auth/refresh`
-- `POST /api/v1/auth/logout`
-- `GET /api/v1/auth/me`
+- `GET /api/v1/auth/profile`
 - `GET /api/v1/users`
 - `GET /api/v1/users/:id`
 - `POST /api/v1/users`

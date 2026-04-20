@@ -1,0 +1,6 @@
+{
+  "errors": {
+    "notFound": "User not found",
+    "emailAlreadyExists": "Email already exists"
+  }
+}

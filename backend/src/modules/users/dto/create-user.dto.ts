@@ -13,12 +13,6 @@ export class CreateUserDto {
   @ApiProperty()
   @TrimmedString()
   @IsString({ message: i18nMessage('validation.isString') })
-  @MinLength(2, { message: i18nMessage('validation.minLength') })
-  public readonly fullName!: string;
-
-  @ApiProperty()
-  @TrimmedString()
-  @IsString({ message: i18nMessage('validation.isString') })
   @MinLength(8, { message: i18nMessage('validation.minLength') })
   public readonly password!: string;
 }

@@ -6,9 +6,6 @@ import type { Path } from "nestjs-i18n";
 /* prettier-ignore */
 export type I18nTranslations = {
     "auth": {
-        "common": {
-            "loginSuccess": string;
-        };
         "errors": {
             "invalidCredentials": string;
         };
@@ -26,11 +23,7 @@ export type I18nTranslations = {
         "TOO_MANY_REQUESTS": string;
         "INTERNAL_SERVER_ERROR": string;
     };
-    "task": {};
     "user": {
-        "common": {
-            "profileUpdated": string;
-        };
         "errors": {
             "notFound": string;
             "emailAlreadyExists": string;

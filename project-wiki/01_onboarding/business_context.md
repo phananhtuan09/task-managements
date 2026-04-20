@@ -1,14 +1,14 @@
 ---
 id: ONBOARDING-CORE-BUSINESS-CONTEXT
-title: Project Wiki Business Context
+title: TaskFlow SaaS Business Context
 doc_type: overview
 domain: core
-status: proposed
+status: confirmed
 version: 0.1
 owner: ai-primary
 reviewers:
   - project-maintainer
-last_updated: 2026-04-08
+last_updated: 2026-04-19
 source_of_truth: false
 canonical: false
 related_docs:
@@ -20,36 +20,23 @@ tags:
   - project-wiki
   - onboarding
   - context
-summary: Reader-facing explanation of why the wiki exists and the operational value it is expected to provide.
+summary: Reader-facing problem statement and product value for TaskFlow SaaS.
 ---
 
-# Project Wiki Business Context
+# TaskFlow SaaS Business Context
 
-## Why This System Exists
+## Problem
 
-The wiki exists to reduce repeated clarification work. Without a durable project memory layer, teams and AI agents have to rediscover business rules, re-ask scope questions, and infer intent from scattered artifacts.
+- Work is scattered across chat, notes, and spreadsheets, which makes tracking difficult.
+- Teams often lack visibility into who is working on what.
+- Existing tools can be too complex or heavy for small teams and startups.
 
-## Problems It Addresses
+## Value
 
-- onboarding is slower when durable context is spread across chat history, code, and ad hoc notes
-- feature clarification is risky when intended behavior is not easy to find
-- change analysis becomes less safe when canonical docs, assumptions, and open questions are mixed together
-- documentation drift is harder to detect when there is no stable navigation model
+- Centralizes tasks in one system.
+- Makes assignees and task status visible.
+- Keeps the product simple and easy to adopt while allowing the system to scale over time.
 
-## Expected Value
+## Constraints
 
-- faster onboarding for new contributors
-- safer feature updates because impacted rules and flows are easier to find
-- clearer distinction between confirmed truth, inferred detail, and unresolved questions
-- better handoff quality between humans and AI agents
-
-## Current Scope Note
-
-This benefit is partly implemented now through the wiki foundation, starter support docs, and reusable templates. Formal verification surfaces and validator automation are planned in later slices.
-
-## Related Reading
-
-- [Project Overview](project_overview.md)
-- [Business Rules](../02_requirements/confirmed/business_rules.md)
-- [Product Scope](../02_requirements/confirmed/product_scope.md)
-- [Non-Functional Requirements](../02_requirements/confirmed/non_functional_requirements.md)
+_To be filled in._

@@ -1,32 +1,21 @@
 import { PrismaClient } from '@prisma/client';
-import { createHash, randomBytes } from 'node:crypto';
+import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
-
-function hashPassword(password: string): string {
-  const salt = randomBytes(16).toString('hex');
-  const digest = createHash('sha256')
-    .update(`${salt}:${password}`)
-    .digest('hex');
-
-  return `${salt}:${digest}`;
-}
 
 async function main(): Promise<void> {
   const email = process.env.SEED_ADMIN_EMAIL ?? 'admin@example.com';
   const password = process.env.SEED_ADMIN_PASSWORD ?? 'admin12345';
-  const fullName = process.env.SEED_ADMIN_FULL_NAME ?? 'System Admin';
+  const passwordHash = await bcrypt.hash(password, 10);
 
   await prisma.user.upsert({
     where: { email },
     update: {
-      fullName,
-      passwordHash: hashPassword(password),
+      passwordHash,
     },
     create: {
       email,
-      fullName,
-      passwordHash: hashPassword(password),
+      passwordHash,
     },
   });
 

@@ -1,12 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 
+import { AppConflictException } from '../../common/exceptions/conflict.exception';
+import { AppUnauthorizedException } from '../../common/exceptions/unauthorized.exception';
+import { AppI18nService } from '../../i18n/app-i18n.service';
+import { UserRepository } from '../users/repositories/user.repository';
+import { AuthPasswordService } from './auth-password.service';
 import {
   AuthTokenResponseDto,
   AuthUserResponseDto,
   LoginRequestDto,
-  RefreshTokenRequestDto,
   RegisterRequestDto,
 } from './dto/auth.dto';
 
@@ -14,76 +17,81 @@ import {
 export class AuthService {
   public constructor(
     private readonly jwtService: JwtService,
-    private readonly configService: ConfigService,
+    private readonly userRepository: UserRepository,
+    private readonly authPasswordService: AuthPasswordService,
+    private readonly appI18nService: AppI18nService,
   ) {}
 
   public async register(payload: RegisterRequestDto): Promise<AuthUserResponseDto> {
-    return {
-      id: 'bootstrap-user-id',
+    const existingUser = await this.userRepository.findByEmail(payload.email);
+
+    if (existingUser) {
+      throw new AppConflictException(this.appI18nService.t('user.errors.emailAlreadyExists'), {
+        field: 'email',
+      });
+    }
+
+    const user = await this.userRepository.create({
       email: payload.email,
-      fullName: payload.fullName,
-    };
+      passwordHash: await this.authPasswordService.hashPassword(payload.password),
+    });
+
+    return this.toAuthUserResponse(user);
   }
 
   public async login(payload: LoginRequestDto): Promise<AuthTokenResponseDto> {
-    return this.issueTokens({
-      sub: 'bootstrap-user-id',
-      email: payload.email,
-      roles: ['member'],
-      lang: 'en',
+    const user = await this.userRepository.findByEmail(payload.email);
+
+    if (!user) {
+      throw new AppUnauthorizedException(this.appI18nService.t('auth.errors.invalidCredentials'));
+    }
+
+    const passwordMatches = await this.authPasswordService.verifyPassword(
+      payload.password,
+      user.passwordHash,
+    );
+
+    if (!passwordMatches) {
+      throw new AppUnauthorizedException(this.appI18nService.t('auth.errors.invalidCredentials'));
+    }
+
+    return this.issueAccessToken({
+      sub: user.id,
+      email: user.email,
     });
   }
 
-  public async refresh(payload: RefreshTokenRequestDto): Promise<AuthTokenResponseDto> {
-    const decoded = await this.jwtService.verifyAsync<{
-      sub: string;
-      email: string;
-      roles: string[];
-      lang?: string;
-    }>(payload.refreshToken, {
-      secret: this.configService.getOrThrow<string>('auth.refreshSecret'),
-    });
+  public async getProfile(userId: string): Promise<AuthUserResponseDto> {
+    const user = await this.userRepository.findById(userId);
 
-    return this.issueTokens(decoded);
+    if (!user) {
+      throw new AppUnauthorizedException(this.appI18nService.t('auth.errors.invalidCredentials'));
+    }
+
+    return this.toAuthUserResponse(user);
   }
 
-  public async logout(): Promise<{ success: boolean }> {
-    return { success: true };
-  }
-
-  public async me(): Promise<AuthUserResponseDto> {
-    return {
-      id: 'bootstrap-user-id',
-      email: 'demo@example.com',
-      fullName: 'Bootstrap User',
-    };
-  }
-
-  private async issueTokens(payload: {
+  private async issueAccessToken(payload: {
     sub: string;
     email: string;
-    roles: string[];
-    lang?: string;
   }): Promise<AuthTokenResponseDto> {
-    const accessExpiresIn = this.configService.getOrThrow<string>(
-      'auth.accessExpiresIn',
-    ) as never;
-    const refreshExpiresIn = this.configService.getOrThrow<string>(
-      'auth.refreshExpiresIn',
-    ) as never;
-    const accessToken = await this.jwtService.signAsync(payload, {
-      secret: this.configService.getOrThrow<string>('auth.accessSecret'),
-      expiresIn: accessExpiresIn,
-    });
-    const refreshToken = await this.jwtService.signAsync(payload, {
-      secret: this.configService.getOrThrow<string>('auth.refreshSecret'),
-      expiresIn: refreshExpiresIn,
-    });
+    const accessToken = await this.jwtService.signAsync(payload);
 
     return {
       accessToken,
-      refreshToken,
       tokenType: 'Bearer',
+    };
+  }
+
+  private toAuthUserResponse(user: {
+    id: string;
+    email: string;
+    createdAt: Date;
+  }): AuthUserResponseDto {
+    return {
+      id: user.id,
+      email: user.email,
+      createdAt: user.createdAt,
     };
   }
 }

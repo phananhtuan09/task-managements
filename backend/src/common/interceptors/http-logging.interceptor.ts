@@ -1,4 +1,11 @@
-import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
+import {
+  CallHandler,
+  ExecutionContext,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NestInterceptor,
+} from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { Observable, tap } from 'rxjs';
 
@@ -29,11 +36,16 @@ export class HttpLoggingInterceptor implements NestInterceptor {
             userId: this.requestContextService.getUserId(),
           });
         },
-        error: () => {
+        error: (error: unknown) => {
+          const statusCode =
+            error instanceof HttpException
+              ? error.getStatus()
+              : HttpStatus.INTERNAL_SERVER_ERROR;
+
           this.logger.warnHttp({
             method: request.method,
             path: request.originalUrl,
-            statusCode: response.statusCode,
+            statusCode,
             durationMs: Date.now() - startedAt,
             requestId: this.requestContextService.getRequestId(),
             userId: this.requestContextService.getUserId(),

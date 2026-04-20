@@ -62,9 +62,9 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       success: false,
       code: payload.code,
       message: payload.message,
+      ...(payload.details !== undefined ? { details: payload.details } : {}),
       ...(this.shouldIncludeDebug(request)
         ? {
-            details: payload.details,
             error: payload.error,
             stack: payload.stack,
           }
@@ -87,6 +87,18 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     const response = exception.getResponse();
 
     if (typeof response === 'string') {
+      if (exception.getStatus() === HttpStatus.TOO_MANY_REQUESTS) {
+        return {
+          code: APP_ERROR_CODE.TOO_MANY_REQUESTS,
+          message: this.getTranslatedStatusMessage(HttpStatus.TOO_MANY_REQUESTS),
+          details: {
+            source: 'throttler',
+            reason: response,
+          },
+          stack: exception.stack,
+        };
+      }
+
       return {
         code: this.getDefaultCode(exception.getStatus()),
         message: this.toUserMessage(response, exception.getStatus()),
@@ -96,14 +108,28 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
     if (typeof response === 'object' && response !== null) {
       const responseObject = response as Record<string, unknown>;
+      const status = exception.getStatus();
+
+      if (status === HttpStatus.TOO_MANY_REQUESTS) {
+        return {
+          code: APP_ERROR_CODE.TOO_MANY_REQUESTS,
+          message: this.getTranslatedStatusMessage(HttpStatus.TOO_MANY_REQUESTS),
+          details: {
+            source: 'throttler',
+            reason: responseObject.message ?? responseObject.error ?? 'Too Many Requests',
+          },
+          error: responseObject.error,
+          stack: exception.stack,
+        };
+      }
 
       return {
         code:
           (responseObject.code as AppErrorCode | string | undefined) ??
-          this.getDefaultCode(exception.getStatus()),
+          this.getDefaultCode(status),
         message: this.toUserMessage(
           responseObject.message as string | string[] | undefined,
-          exception.getStatus(),
+          status,
         ),
         details: responseObject.details,
         error: responseObject.error,
@@ -158,6 +184,12 @@ export class GlobalExceptionFilter implements ExceptionFilter {
   }
 
   private shouldIncludeDebug(request: Request): boolean {
+    const nodeEnv = this.configService.get<string>('NODE_ENV');
+
+    if (nodeEnv !== 'production') {
+      return true;
+    }
+
     const debugKey = this.configService.get<string>('app.error.debugKey');
 
     if (!debugKey) {

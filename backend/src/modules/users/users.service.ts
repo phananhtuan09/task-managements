@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import type { Prisma, User } from '@prisma/client';
-import { createHash, randomBytes } from 'node:crypto';
 
 import { AppConflictException } from '../../common/exceptions/conflict.exception';
 import { AppNotFoundException } from '../../common/exceptions/not-found.exception';
 import type { PaginateResult } from '../../database/base/base.repository.types';
 import { AppI18nService } from '../../i18n/app-i18n.service';
+import { AuthPasswordService } from '../auth/auth-password.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserQueryDto } from './dto/user-query.dto';
 import { UserResponseDto } from './dto/user-response.dto';
@@ -17,6 +17,7 @@ export class UsersService {
   public constructor(
     private readonly userRepository: UserRepository,
     private readonly appI18nService: AppI18nService,
+    private readonly authPasswordService: AuthPasswordService,
   ) {}
 
   public async findAll(query: UserQueryDto): Promise<PaginateResult<UserResponseDto>> {
@@ -55,8 +56,7 @@ export class UsersService {
 
     const user = await this.userRepository.create({
       email: payload.email,
-      fullName: payload.fullName,
-      passwordHash: this.hashPassword(payload.password),
+      passwordHash: await this.authPasswordService.hashPassword(payload.password),
     });
 
     return this.toResponseDto(user);
@@ -79,12 +79,15 @@ export class UsersService {
       }
     }
 
+    const passwordHash = payload.password
+      ? await this.authPasswordService.hashPassword(payload.password)
+      : undefined;
+
     const user = await this.userRepository.update(
       { id },
       {
         email: payload.email,
-        fullName: payload.fullName,
-        passwordHash: payload.password ? this.hashPassword(payload.password) : undefined,
+        passwordHash,
       },
     );
 
@@ -112,10 +115,7 @@ export class UsersService {
 
     if (query.search) {
       conditions.push({
-        OR: [
-          { email: { contains: query.search, mode: 'insensitive' } },
-          { fullName: { contains: query.search, mode: 'insensitive' } },
-        ],
+        email: { contains: query.search, mode: 'insensitive' },
       });
     }
 
@@ -134,18 +134,8 @@ export class UsersService {
     return {
       id: user.id,
       email: user.email,
-      fullName: user.fullName,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };
-  }
-
-  private hashPassword(password: string): string {
-    const salt = randomBytes(16).toString('hex');
-    const digest = createHash('sha256')
-      .update(`${salt}:${password}`)
-      .digest('hex');
-
-    return `${salt}:${digest}`;
   }
 }

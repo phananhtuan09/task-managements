@@ -1,8 +1,14 @@
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { ValidationError } from 'class-validator';
-import { I18nValidationPipe } from 'nestjs-i18n';
+import {
+  I18nContext,
+  I18nService,
+  I18nValidationPipe,
+} from 'nestjs-i18n';
+import { formatI18nErrors } from 'nestjs-i18n/dist/utils';
 
 import { APP_ERROR_CODE } from '../constants/error.constants';
+import type { I18nTranslations } from '../../generated/i18n.generated';
 
 function flattenValidationMessages(errors: ValidationError[]): string[] {
   return errors.flatMap((error) => {
@@ -13,8 +19,11 @@ function flattenValidationMessages(errors: ValidationError[]): string[] {
   });
 }
 
+@Injectable()
 export class AppI18nValidationPipe extends I18nValidationPipe {
-  public constructor() {
+  public constructor(
+    private readonly i18nService: I18nService<I18nTranslations>,
+  ) {
     super({
       whitelist: true,
       transform: true,
@@ -30,11 +39,15 @@ export class AppI18nValidationPipe extends I18nValidationPipe {
       },
     });
 
-    this.exceptionFactory = (errors: ValidationError[]) =>
-      new BadRequestException({
+    this.exceptionFactory = (errors: ValidationError[]) => {
+      const lang = I18nContext.current()?.lang;
+      const translatedErrors = formatI18nErrors(errors, this.i18nService, { lang });
+
+      return new BadRequestException({
         code: APP_ERROR_CODE.VALIDATION_ERROR,
-        message: flattenValidationMessages(errors),
-        details: errors,
+        message: flattenValidationMessages(translatedErrors),
+        details: translatedErrors,
       });
+    };
   }
 }
